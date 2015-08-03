@@ -34,21 +34,23 @@ Commit will make the database commit.When you have a persisted object and you ch
 
 2. session.get() vs session.load()
 
-a. public Object get(Class clazz, Serializable id) : 
+a. public Object get(Class clazz, Serializable id) : 			
 
-1.hit the DB at the time of method call.
-2.if it is valid object,it will return the object and it will store in the cache.
+1. hit the DB at the time of method call.
+2. if it is valid object,it will return the object and it will store in the cache.
 3. get() returns NULL, when we call get() with non-existing ID
-4.for second time when we call get() with same id, it will check the cache and return the object from cache if it is 
-5. when we try to access same object even after closing session, we will get the valid and same object (as object already 
+4. for second time when we call get() with same id, it will check the cache and return the object from cache if it is available otherwise it will hit the DB again.
+5. when we try to access same object even after closing session, we will get the valid and same object (as object already asigned at the line of get() method call itself)
+6. Return the persistent instance of the given entity class with the given identifier, or null if there is no such persistent instance. (If the instance is already associated with the session, return that instance. This method never returns an uninitialized instance.)
 
 b. public Object load(Class theClass, Serializable id) : 
 
-1.on method load() call,it creates the proxy object and return it.
-2.when we try to do any operation for that object, first it will hit DB, get the real instance and then it will do the  
+1. on method load() call,it creates the proxy object and return it.
+2. when we try to do any operation for that object, first it will hit DB, get the real instance and then it will do the  respective operation (setter/getter).
 3. load() throws ObjectNotFoundException, when we access object, if we try to call load() with non-existing ID
-4. for second time when we call load() with same id, it will check the cache and return the object from cache if it is 
-5. it throws 'org.hibernate.LazyInitializationException: could not initialize proxy - no Session', when we try to access 
+4. for second time when we call load() with same id, it will check the cache and return the object from cache if it is available otherwise it will hit the DB again.
+5. it throws 'org.hibernate.LazyInitializationException: could not initialize proxy - no Session', when we try to access object after closing session.
+6. You should not use this method to determine if an instance exists (use get() instead). Use this only to retrieve an instance that you assume exists, where non-existence would be an actual error.
 
 Case1 : 
 Session session = HibernateUtil.getSessionFactory().openSession();
@@ -57,3 +59,27 @@ regOfficeInc = null;
 regOfficeInc = (RegOffice)session.load(RegOffice.class, 30);// it will load from cache, even though ref is NULL.
 session.close();
 System.out.println(regOfficeInc);
+
+---------------------------------------
+
+3. session.evict(obj) vs session.clear() vs session.flush() 
+		
+a. void session.evict (obj):
+	Remove this(obj) instance from the session cache
+		or
+	will clear the buffer with specified object. 
+		or
+	evicts a single/specified object from the session. 
+
+b. void session.clear ():
+	Completely clear the session
+		or
+	Clear all objects within the buffer, but does not include the operation object.
+          
+c. void flush() throws HibernateException :
+	Force this session to flush. Must be called at the end of a unit of work, before committing the transaction and closing the session (depending on flush-mode, Transaction.commit() calls this method).
+	Flushing is the process of synchronizing/persistenting the data with cache.
+
+d. void setFlushMode(FlushMode flushMode)
+	The flush mode determines the points at which the session is flushed.
+	For a logically "read only" session, it is reasonable to set the session's flush mode to FlushMode.MANUAL at the start of the session (in order to achieve some extra performance).
