@@ -1,5 +1,7 @@
 1.  org.hibernate.Transaction.commit() and org.hibernate.Session.flush()
 
+https://docs.jboss.org/hibernate/orm/3.5/reference/en/html/batch.html
+
 In the Hibernate Manual you can see this example
 
       Session session = sessionFactory.openSession();
