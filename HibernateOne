@@ -1,0 +1,32 @@
+1.  org.hibernate.Transaction.commit() and org.hibernate.Session.flush()
+
+In the Hibernate Manual you can see this example
+
+      Session session = sessionFactory.openSession();
+      Transaction tx = session.beginTransaction();
+      
+      
+      for ( int i=0; i<100000; i++ ) {
+          Customer customer = new Customer(.....);
+          session.save(customer);
+          if ( i % 20 == 0 ) { //20, same as the JDBC batch size
+              //flush a batch of inserts and release memory:
+              session.flush();
+              session.clear();
+          }
+      }
+      
+      tx.commit();
+      session.close();
+------------------------------------------------------------
+
+Without the call to the flush method, your first-level cache would throw an OutOfMemoryException
+Also you can look at this post about flushing (http://docs.jboss.org/hibernate/core/3.3/reference/en/html/objectstate.html#objectstate-flushing)
+
+flush(); 
+Flushing is the process of synchronizing the underlying persistent store with persistable state held in memory.it will update or insert into your tables in the running transaction, but it may not commit those changes.
+
+You need to flush in batch processing otherwise it may give OutOfMemoryException.
+
+Commit(); 
+Commit will make the database commit.When you have a persisted object and you change a value on it, it becomes dirty and hibernate needs to flush these changes to your persistence layer.So You should commit but it also ends the unit of work.transaction.commit()
