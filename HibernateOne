@@ -85,3 +85,24 @@ c. void flush() throws HibernateException :
 d. void setFlushMode(FlushMode flushMode)
 	The flush mode determines the points at which the session is flushed.
 	For a logically "read only" session, it is reasonable to set the session's flush mode to FlushMode.MANUAL at the start of the session (in order to achieve some extra performance).
+	
+--------------------------------------------------------------------------
+@Fetch(FetchMode.SUBSELECT) ::
+select this_.OID as OID1_0_0_, this_.LOCATION as LOCATION2_0_0_, this_.REG_O_ID as REG_O_ID3_0_0_ from MYDB.REG_OFFICE this_
+select vehicles0_.REG_OID as REG_OID3_0_1_, vehicles0_.VID as VID1_1_1_, vehicles0_.VID as VID1_1_0_, vehicles0_.REG_OID as REG_OID3_1_0_, vehicles0_.V_REGNO as V_REGNO2_1_0_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID in (select this_.OID from MYDB.REG_OFFICE this_)
+
+@Fetch(FetchMode.SELECT) ::
+select regoffice0_.OID as OID1_0_0_, regoffice0_.LOCATION as LOCATION2_0_0_, regoffice0_.REG_O_ID as REG_O_ID3_0_0_ from MYDB.REG_OFFICE regoffice0_ where regoffice0_.OID=?
+select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+[Vehicle [vId=101, vRegNo=1971716953, regOffice=RegOffice [oId=30, regOId=1587824884, location=TPT]], Vehicle [vId=100, vRegNo=1996367776, regOffice=RegOffice [oId=30, regOId=1587824884, location=TPT]]]
+Hibernate: /* criteria query */ select this_.OID as OID1_0_0_, this_.LOCATION as LOCATION2_0_0_, this_.REG_O_ID as REG_O_ID3_0_0_ from MYDB.REG_OFFICE this_
+Hibernate: select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+Hibernate: select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+Hibernate: select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+Hibernate: select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+Hibernate: select vehicles0_.REG_OID as REG_OID3_0_0_, vehicles0_.VID as VID1_1_0_, vehicles0_.VID as VID1_1_1_, vehicles0_.REG_OID as REG_OID3_1_1_, vehicles0_.V_REGNO as V_REGNO2_1_1_ from MYDB.VEHICLE vehicles0_ where vehicles0_.REG_OID=?
+
+@Fetch(FetchMode.JOIN) ::
+select regoffice0_.OID as OID1_0_0_, regoffice0_.LOCATION as LOCATION2_0_0_, regoffice0_.REG_O_ID as REG_O_ID3_0_0_, vehicles1_.REG_OID as REG_OID3_0_1_, vehicles1_.VID as VID1_1_1_, vehicles1_.VID as VID1_1_2_, vehicles1_.REG_OID as REG_OID3_1_2_, vehicles1_.V_REGNO as V_REGNO2_1_2_ from MYDB.REG_OFFICE regoffice0_ left outer join MYDB.VEHICLE vehicles1_ on regoffice0_.OID=vehicles1_.REG_OID where regoffice0_.OID=?
+[Vehicle [vId=101, vRegNo=1971716953, regOffice=RegOffice [oId=30, regOId=1587824884, location=TPT]], Vehicle [vId=100, vRegNo=1996367776, regOffice=RegOffice [oId=30, regOId=1587824884, location=TPT]]]
+select this_.OID as OID1_0_1_, this_.LOCATION as LOCATION2_0_1_, this_.REG_O_ID as REG_O_ID3_0_1_, vehicles2_.REG_OID as REG_OID3_0_3_, vehicles2_.VID as VID1_1_3_, vehicles2_.VID as VID1_1_0_, vehicles2_.REG_OID as REG_OID3_1_0_, vehicles2_.V_REGNO as V_REGNO2_1_0_ from MYDB.REG_OFFICE this_ left outer join MYDB.VEHICLE vehicles2_ on this_.OID=vehicles2_.REG_OID
