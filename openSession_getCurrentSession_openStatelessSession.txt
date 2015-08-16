@@ -1,0 +1,66 @@
+Hibernate SessionFactory openSession vs getCurrentSession vs openStatelessSession
+
+Hibernate SessionFactory is the factory class through which we get sessions and perform database operations. Hibernate SessionFactory provides three methods through which we can get Session object – getCurrentSession(), openSession() and openStatelessSession().
+
+Hibernate getCurrentSession
+
+Hibernate SessionFactory getCurrentSession() method returns the session bound to the context. But for this to work, we need to configure it in hibernate configuration file like below.
+
+<property name="hibernate.current_session_context_class">thread</property>
+
+If its not configured to thread, then we will get below exception
+Exception in thread "main" org.hibernate.HibernateException: No CurrentSessionContext configured!
+    at org.hibernate.internal.SessionFactoryImpl.getCurrentSession(SessionFactoryImpl.java:1012)
+    at com.journaldev.hibernate.main.HibernateSessionExample.main(HibernateSessionExample.java:16)
+
+	Since this session object belongs to the hibernate context, we don’t need to close it. Once the session factory is closed, this session object gets closed. Hibernate Session objects are not thread safe, so we should not use it in multi-threaded environment. We can use it in single threaded environment because it’s relatively faster than opening a new session.
+
+Hibernate openSession
+
+Hibernate SessionFactory openSession() method always opens a new session. We should close this session object once we are done with all the database operations. We should open a new session for each request in multi-threaded environment. For web application frameworks, we can choose to open a new session for each request or for each session based on the requirement.
+
+Hibernate openStatelessSession
+
+Hibernate SessionFactory openStatelessSession() method returns instance of StatelessSession. There is another overloaded method where we can pass java.sql.Connection object to get a stateless session object from hibernate.
+
+StatelessSession does not implement first-level cache and it doesn’t interact with any second-level cache. Since it’s stateless, it doesn’t implement transactional write-behind or automatic dirty checking or do cascading operations to associated entities.
+
+Collections are also ignored by a stateless session. Operations performed via a stateless session bypass Hibernate’s event model and interceptors. It’s more like a normal JDBC connection and doesn’t provide any benefits that come from using hibernate framework.
+
+However, stateless session can be a good fit in certain situations, for example where we are loading bulk data into database and we don’t want hibernate session to hold huge data in first-level cache memory.
+
+A simple program showing these methods usage is given below.
+
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.StatelessSession;
+ 
+import com.journaldev.hibernate.util.HibernateUtil;
+ 
+public class HibernateSessionExample {
+ 
+    public static void main(String[] args) {
+         
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+         
+        //Current Session - no need to close
+        Session currentSession = sessionFactory.getCurrentSession();
+         
+        //open new session
+        Session newSession = sessionFactory.openSession();
+        //perform db operations
+        //close session
+        newSession.close();
+         
+        //open stateless session
+        StatelessSession statelessSession = sessionFactory.openStatelessSession();
+        //perform stateless db operations
+        //close session
+        statelessSession.close();
+         
+        //close session factory
+        sessionFactory.close();
+         
+    }
+ 
+}
