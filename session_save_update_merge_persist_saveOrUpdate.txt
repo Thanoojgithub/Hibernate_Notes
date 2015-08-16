@@ -1,3 +1,33 @@
+			Employee employee = new Employee("ram");
+			Serializable eId = session1.save(employee);
+			employee.seteName("rajaram");
+			//Serializable eId = session1.save(employee);
+			Employee emp = (Employee)session1.get(Employee.class, eId);
+			tx1.commit();
+			session1.close();
+			session2 = sessionFactory.openSession();
+			tx2 = session2.beginTransaction();
+			employee.seteName("sriram");
+			session2.save(emp);
+			tx2.commit();
+			session2.close();
+			session3 = sessionFactory.openSession();
+			Query query = session3.createQuery("from employee");
+			@SuppressWarnings("unchecked")
+			List<Employee> employees = (List<Employee>)query.list();
+			for (Employee empTemp : employees) {
+				logger.info("Emp : "+empTemp);
+			}
+			session3.close();
+
+
+
+
+
+
+1. SAVE
+
+
 emp.seteName("sriram");
 session2.save(emp);
 
@@ -10,7 +40,7 @@ Hibernate: /* from employee */ select employee0_.EID as EID1_0_, employee0_.eNam
 17-08-2015 01:22:42 2238 [main] INFO  c.h.S.app.App - Emp : Employee [eId=11, eName=rajaram] 
 17-08-2015 01:22:42 2238 [main] INFO  c.h.S.app.App - Emp : Employee [eId=12, eName=sriram] 
 
-
+2. MERGE
 
 emp.seteName("sriram");
 session2.merge(emp);
